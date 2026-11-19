@@ -1,0 +1,24 @@
+{
+  "rows_after_basic_checks": 3276,
+  "feature_count": 9,
+  "class_counts": {
+    "0": 1998,
+    "1": 1278
+  },
+  "missing_values_by_feature": {
+    "ph": 491,
+    "Hardness": 0,
+    "Solids": 0,
+    "Chloramines": 0,
+    "Sulfate": 781,
+    "Conductivity": 0,
+    "Organic_carbon": 0,
+    "Trihalomethanes": 162,
+    "Turbidity": 0
+  },
+  "train_rows": 2620,
+  "test_rows": 656,
+  "best_model_by_macro_f1": "Random Forest",
+  "split": "80% train / 20% test, stratified",
+  "random_state": 42
+}

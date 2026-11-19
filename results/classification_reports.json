@@ -1,0 +1,83 @@
+{
+  "Logistic Regression": {
+    "0": {
+      "precision": 0.6341463414634146,
+      "recall": 0.52,
+      "f1-score": 0.5714285714285714,
+      "support": 400.0
+    },
+    "1": {
+      "precision": 0.4146341463414634,
+      "recall": 0.53125,
+      "f1-score": 0.4657534246575342,
+      "support": 256.0
+    },
+    "accuracy": 0.524390243902439,
+    "macro avg": {
+      "precision": 0.524390243902439,
+      "recall": 0.525625,
+      "f1-score": 0.5185909980430528,
+      "support": 656.0
+    },
+    "weighted avg": {
+      "precision": 0.5484830458060679,
+      "recall": 0.524390243902439,
+      "f1-score": 0.5301894897618252,
+      "support": 656.0
+    }
+  },
+  "Decision Tree": {
+    "0": {
+      "precision": 0.6428571428571429,
+      "recall": 0.9,
+      "f1-score": 0.75,
+      "support": 400.0
+    },
+    "1": {
+      "precision": 0.5833333333333334,
+      "recall": 0.21875,
+      "f1-score": 0.3181818181818182,
+      "support": 256.0
+    },
+    "accuracy": 0.6341463414634146,
+    "macro avg": {
+      "precision": 0.6130952380952381,
+      "recall": 0.559375,
+      "f1-score": 0.5340909090909091,
+      "support": 656.0
+    },
+    "weighted avg": {
+      "precision": 0.6196283391405343,
+      "recall": 0.6341463414634146,
+      "f1-score": 0.5814855875831485,
+      "support": 656.0
+    }
+  },
+  "Random Forest": {
+    "0": {
+      "precision": 0.6685714285714286,
+      "recall": 0.8775,
+      "f1-score": 0.7589189189189189,
+      "support": 400.0
+    },
+    "1": {
+      "precision": 0.6259541984732825,
+      "recall": 0.3203125,
+      "f1-score": 0.42377260981912146,
+      "support": 256.0
+    },
+    "accuracy": 0.6600609756097561,
+    "macro avg": {
+      "precision": 0.6472628135223555,
+      "recall": 0.59890625,
+      "f1-score": 0.5913457643690202,
+      "support": 656.0
+    },
+    "weighted avg": {
+      "precision": 0.6519403143867861,
+      "recall": 0.6600609756097561,
+      "f1-score": 0.6281301153677784,
+      "support": 656.0
+    }
+  }
+}
