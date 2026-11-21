@@ -1,41 +1,33 @@
-"""Download the public Water Potability CSV used by this educational project."""
-from pathlib import Path
-from urllib.request import Request, urlopen
+"""Check for the manually downloaded Kaggle Water Quality CSV.
 
-DATA_DIR = Path(__file__).resolve().parent / "data"
-DATA_FILE = DATA_DIR / "water_potability.csv"
-URLS = [
-    "https://raw.githubusercontent.com/edanurb/Water-Quality-Dataset-pytorch/main/water_potability.csv",
-    "https://raw.githubusercontent.com/Divits0/Water-Potability-Prediction/main/water_potability.csv",
+Download waterQuality1.csv from the Kaggle dataset page and put it in data/.
+Kaggle may require you to be signed in before downloading.
+"""
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent
+DATA_DIR = ROOT / "data"
+CANDIDATES = [
+    DATA_DIR / "waterQuality1.csv",
+    DATA_DIR / "water_quality.csv",
+    DATA_DIR / "water-quality.csv",
 ]
 
 
-def download_dataset(force: bool = False) -> Path:
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
-    if DATA_FILE.exists() and not force and DATA_FILE.stat().st_size > 10_000:
-        return DATA_FILE
-
-    last_error = None
-    for url in URLS:
-        try:
-            request = Request(url, headers={"User-Agent": "SmartWaterQualityStudentProject/1.0"})
-            with urlopen(request, timeout=30) as response:
-                content = response.read()
-            if b"Potability" not in content[:500] or len(content) < 10_000:
-                raise ValueError("Downloaded file does not look like the expected CSV dataset.")
-            DATA_FILE.write_bytes(content)
-            print(f"Dataset downloaded to: {DATA_FILE}")
-            print(f"Source: {url}")
-            return DATA_FILE
-        except Exception as exc:  # try the next public mirror
-            last_error = exc
-
-    raise RuntimeError(
-        "Could not download the dataset automatically. Download the CSV from "
-        "https://www.kaggle.com/datasets/adityakadiwal/water-potability and save it as "
-        f"{DATA_FILE}. Last error: {last_error}"
-    )
+def main() -> None:
+    DATA_DIR.mkdir(exist_ok=True)
+    for path in CANDIDATES:
+        if path.exists() and path.stat().st_size > 1_000:
+            print(f"Dataset found: {path}")
+            print("Next run: python train.py")
+            return
+    print("The expanded dataset has not been placed in the data folder yet.\n")
+    print("1. Open: https://www.kaggle.com/datasets/mssmartypants/water-quality")
+    print("2. Download the dataset and extract waterQuality1.csv")
+    print(f"3. Copy the CSV into: {DATA_DIR}")
+    print("4. Run: python train.py")
+    raise SystemExit(1)
 
 
 if __name__ == "__main__":
-    print(download_dataset())
+    main()

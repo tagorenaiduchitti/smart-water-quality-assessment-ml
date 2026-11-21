@@ -1,10 +1,8 @@
 # Smart Water Quality Assessment and Potability Prediction Using Machine Learning
 
-A supervised machine-learning mini-project that explores water-quality measurements and predicts the `Potability` label in a public educational dataset. The project includes data preprocessing, exploratory data analysis (EDA), training and comparison of three classification algorithms, and an interactive Streamlit dashboard.
+An individual Machine Learning mini-project that explores water-quality measurements and predicts the `is_safe` label supplied with a public Kaggle benchmark dataset. The project covers data validation, exploratory data analysis (EDA), preprocessing, model training and comparison, and an interactive Streamlit dashboard.
 
-> **Important limitation:** This application predicts labels from an educational benchmark dataset. It is not a certified drinking-water test, does not establish compliance with Indian drinking-water standards, and must not be used to decide whether water is safe to consume. Only an accredited laboratory can confirm water quality for real-world use.
-
-**Repository:** [tagorenaiduchitti/smart-water-quality-assessment-ml](https://github.com/tagorenaiduchitti/smart-water-quality-assessment-ml)
+> **Important limitation:** This application predicts labels from the source dataset. The dataset does not provide independently verifiable sample locations, collection dates, or laboratory records. A model output is not a drinking-water safety certification and must not be used to decide whether water is safe to consume. Use accredited laboratory testing for real-world water-quality decisions.
 
 ## Dashboard screenshots
 
@@ -12,201 +10,204 @@ A supervised machine-learning mini-project that explores water-quality measureme
 
 ![Dashboard overview](docs/screenshots/dashboard-overview.png)
 
-### Exploratory data analysis
+### Model comparison and confusion matrices
 
-![Exploratory data analysis](docs/screenshots/exploratory-data-analysis.png)
-
-### Model evaluation and confusion matrices
-
-![Confusion matrices for the three classifiers](docs/screenshots/confusion-matrices.png)
+![Model comparison and confusion matrices](docs/screenshots/model-results-and-confusion-matrices.png)
 
 ## Project objectives
 
-1. Explore nine numerical water-quality parameters in the dataset.
-2. Inspect missing values, descriptive statistics and feature relationships.
-3. Preprocess the data and train three supervised classification models.
-4. Compare model performance on a held-out test set using suitable metrics.
-5. Provide a small interactive interface for exploring the dataset, viewing model results and testing a sample input.
+1. Explore 20 chemical and biological water-quality indicators.
+2. Inspect class distribution, data quality, descriptive statistics and feature relationships.
+3. Prepare the data and train three supervised classification algorithms.
+4. Compare the classifiers using a stratified hold-out test set and five-fold cross-validation on the training split.
+5. Provide an interactive application for dataset exploration, model comparison and sample prediction.
 
 ## Dataset
 
-- **Dataset:** Water Potability (CSV)
-- **Common dataset page:** [Kaggle – Water Potability](https://www.kaggle.com/datasets/adityakadiwal/water-potability)
-- **CSV mirror used by the download script:** [GitHub raw CSV](https://raw.githubusercontent.com/edanurb/Water-Quality-Dataset-pytorch/main/water_potability.csv)
-- **Records in the run shown below:** 3,276
-- **Input features:** 9
-- **Target:** `Potability` (`0` = non-potable label in this dataset; `1` = potable label in this dataset)
+- **Dataset:** Water Quality (`waterQuality1.csv`)
+- **Source:** [Kaggle – Water Quality dataset by MsSmartyPants](https://www.kaggle.com/datasets/mssmartypants/water-quality)
+- **Target:** `is_safe` (`0` = not safe label, `1` = safe label)
+- **Raw records in the supplied CSV:** 7,999
+- **Rows retained after target validation:** 7,996
+- **Input features:** 20
 
-The nine input features are:
+The 20 input features are:
 
-| Feature | Description |
-|---|---|
-| `ph` | pH measurement |
-| `Hardness` | Water hardness |
-| `Solids` | Total dissolved solids |
-| `Chloramines` | Chloramines measurement |
-| `Sulfate` | Sulfate measurement |
-| `Conductivity` | Electrical conductivity |
-| `Organic_carbon` | Organic carbon measurement |
-| `Trihalomethanes` | Trihalomethanes measurement |
-| `Turbidity` | Turbidity measurement |
+`aluminium`, `ammonia`, `arsenic`, `barium`, `cadmium`, `chloramine`, `chromium`, `copper`, `flouride`, `bacteria`, `viruses`, `lead`, `nitrates`, `nitrites`, `mercury`, `perchlorate`, `radium`, `selenium`, `silver`, and `uranium`.
 
-The CSV is downloaded into `data/water_potability.csv` by `download_data.py`. The dataset is not an Indian regional monitoring dataset; the application therefore does not claim to represent local groundwater conditions.
+The source CSV spells the fluoride feature as `flouride`; the code accepts this spelling and also normalizes `fluoride` to the expected feature name.
+
+### Dataset validation notes
+
+The uploaded CSV used for this run contained 7,999 rows. Three rows had an invalid target token and were excluded, leaving 7,996 labelled samples. The cleaned target distribution was:
+
+| Label | Meaning in the source dataset | Samples | Share |
+|---|---|---:|---:|
+| 0 | Not safe | 7,084 | 88.59% |
+| 1 | Safe | 912 | 11.41% |
+
+The dataset audit found no exact duplicate rows and no repeated 20-feature combinations among the retained records. Ten retained rows contain a negative ammonia value (minimum `-0.08`); these values were flagged as data-quality anomalies and were not silently removed. The source CSV does not include sufficient laboratory or geographic metadata to independently validate the labels.
+
+The dataset is downloaded manually from Kaggle because Kaggle may require account sign-in. The CSV is intentionally not committed to this repository. See [Dataset setup](#dataset-setup).
 
 ## Methodology
 
-1. Load the CSV and validate the required columns and binary target.
-2. Remove duplicate rows and rows without a target label.
-3. Perform EDA, including missing-value counts, descriptive statistics, class distribution and a correlation heatmap.
-4. Split the data into **80% training and 20% test sets**, using stratification and `random_state=42`.
-5. Handle missing numerical values with median imputation inside each model pipeline. This ensures the imputer is fitted on the training data only.
-6. Apply standard scaling in the Logistic Regression pipeline.
-7. Train and compare Logistic Regression, Decision Tree and Random Forest classifiers.
-8. Evaluate the models on the held-out test set.
+1. Read the CSV and normalize column names.
+2. Convert numeric fields and non-numeric error tokens to numeric/missing values.
+3. Remove rows without a valid binary `is_safe` target; three invalid-target rows were removed in the reported dataset run.
+4. Check for exact duplicate rows and duplicate predictor combinations.
+5. Split the data into 80% training and 20% held-out testing using stratification and `random_state=42`.
+6. Apply median imputation within each model pipeline. The imputer is fitted on training data only.
+7. Apply standard scaling in the Logistic Regression pipeline.
+8. Train Logistic Regression, Decision Tree and Random Forest classifiers.
+9. Evaluate on the held-out test split. Use five-fold stratified cross-validation on the training split to compare model stability and select the default model by mean macro F1.
 
-### Algorithms compared
+### Algorithms
 
-- **Logistic Regression:** baseline linear classifier; feature scaling is included in its pipeline.
+- **Logistic Regression:** linear classification baseline with scaling and class weighting.
 - **Decision Tree:** tree-based classifier with depth and leaf-size constraints.
-- **Random Forest:** ensemble of decision trees.
+- **Random Forest:** ensemble of decision trees with class weighting.
 
 ## Experimental results
 
-The following results are from the local run used for the screenshots in this repository. Values are rounded to three decimal places. They are results from one stratified 80/20 hold-out split, not cross-validation or external validation.
+The following metrics are from the Windows training run on the cleaned 7,996-row dataset, using an 80:20 stratified split. The test set contained 1,600 samples. Cross-validation values are calculated on the training split only and are shown separately from the held-out test metrics.
 
-| Model | Accuracy | Macro precision | Macro recall | Macro F1 | ROC-AUC | Recall, class 0 |
-|---|---:|---:|---:|---:|---:|---:|
-| **Random Forest** | **0.660** | **0.647** | **0.599** | **0.591** | **0.658** | 0.878 |
-| Decision Tree | 0.634 | 0.613 | 0.559 | 0.534 | 0.591 | **0.900** |
-| Logistic Regression | 0.524 | 0.524 | 0.526 | 0.519 | 0.547 | 0.520 |
+| Model | Accuracy | Balanced accuracy | Macro precision | Macro recall | Macro F1 | ROC-AUC | Safe-class recall | Safe-class average precision | CV macro F1 (mean ± SD) |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Majority baseline (not ML) | 88.6% | 0.500 | 0.443 | 0.500 | 0.470 | — | 0.000 | — | — |
+| Logistic Regression | 80.3% | 0.769 | 0.645 | 0.769 | 0.668 | 0.840 | 0.725 | 0.508 | 0.678 ± 0.015 |
+| Decision Tree | 95.2% | **0.932** | 0.860 | **0.932** | 0.892 | 0.946 | **0.907** | 0.860 | 0.882 ± 0.011 |
+| Random Forest | **96.25%** | 0.859 | **0.948** | 0.859 | **0.897** | **0.978** | 0.725 | **0.915** | **0.888 ± 0.019** |
 
-Random Forest has the highest accuracy, macro precision, macro recall, macro F1 and ROC-AUC in this run, so it is selected as the default model in the dashboard. Decision Tree has the highest recall for class 0, so it identifies a larger proportion of the dataset's non-potable-labelled samples in this test split. This is a useful trade-off to discuss rather than claiming that one model is best on every metric.
+Random Forest was selected as the default model because it achieved the highest five-fold cross-validation macro F1 mean (`0.888`) among the three ML classifiers. Its held-out macro F1 was `0.897`. Decision Tree had a higher balanced accuracy (`0.932`) and safe-class recall (`0.907`), so it performed better at recovering the minority safe class on this test split. The difference between the Random Forest and Decision Tree cross-validation means is small; the result should not be described as a decisive superiority.
+
+The majority baseline achieves 88.6% accuracy by always predicting the majority class. Its safe-class recall is zero. This illustrates why accuracy alone is not an adequate metric for this imbalanced dataset.
 
 ### Confusion matrices
 
-Rows represent actual labels and columns represent predicted labels. Class 0 is the dataset's non-potable label; class 1 is the dataset's potable label.
-
-**Random Forest**
-
-| Actual \ Predicted | Class 0 | Class 1 |
-|---|---:|---:|
-| Class 0 | 351 | 49 |
-| Class 1 | 174 | 82 |
-
-**Decision Tree**
-
-| Actual \ Predicted | Class 0 | Class 1 |
-|---|---:|---:|
-| Class 0 | 360 | 40 |
-| Class 1 | 200 | 56 |
+Rows are actual labels and columns are predicted labels. Class 0 is the source dataset's not-safe label; class 1 is its safe label.
 
 **Logistic Regression**
 
-| Actual \ Predicted | Class 0 | Class 1 |
+| Actual \ Predicted | Not safe (0) | Safe (1) |
 |---|---:|---:|
-| Class 0 | 208 | 192 |
-| Class 1 | 120 | 136 |
+| Not safe (0) | 1,153 | 265 |
+| Safe (1) | 50 | 132 |
 
-### EDA observations from the same dataset run
+**Decision Tree**
 
-| Feature | Missing values | Approx. share of 3,276 rows |
+| Actual \ Predicted | Not safe (0) | Safe (1) |
 |---|---:|---:|
-| Sulfate | 781 | 23.84% |
-| pH | 491 | 14.99% |
-| Trihalomethanes | 162 | 4.95% |
+| Not safe (0) | 1,358 | 60 |
+| Safe (1) | 17 | 165 |
 
-Sulfate has the largest number of missing measurements in this dataset. Median imputation is used for the model pipelines. The pH minimum in the descriptive statistics is 0; this extreme value is retained in the dataset and should be treated as a data-quality observation, not silently interpreted as a normal measurement.
+**Random Forest**
+
+| Actual \ Predicted | Not safe (0) | Safe (1) |
+|---|---:|---:|
+| Not safe (0) | 1,408 | 10 |
+| Safe (1) | 50 | 132 |
 
 ## Streamlit application
 
-The dashboard contains four tabs:
+The dashboard contains four sections:
 
-- **Overview:** dataset size, feature count, model count, class distribution and a dataset preview.
-- **Explore Data:** missing-value chart, descriptive statistics and correlation heatmap.
-- **Test a Sample:** enter the nine measurements and view the selected model's predicted dataset label and probability.
-- **Model Results:** held-out test metrics, macro F1 comparison and confusion matrices for all three classifiers.
+- **Overview:** dataset size, number of input parameters, model count, label distribution and dataset preview.
+- **Explore Data:** missing-value analysis, descriptive statistics and feature correlation heatmap.
+- **Test a Sample:** enter the 20 feature values and view the selected model's predicted source-dataset label and probability.
+- **Model Results:** held-out test metrics, macro F1 comparison and confusion matrices for the three classifiers.
 
-The probability displayed by the application is the model's estimated probability for a dataset label. It is not a probability that real-world water is safe to drink.
+The probability shown by the application is the model's estimated probability of the source dataset's `is_safe` label. It is not the probability that real-world water is safe to drink.
 
-## Run the project on Windows (64-bit)
+## Installation and execution on Windows (64-bit)
 
 ### Requirements
 
 - 64-bit Windows
 - Python 3.10 or newer
-- Visual Studio Code (recommended) or a terminal
-- Internet connection for the first-time package installation and dataset download
+- Visual Studio Code (recommended)
+- Internet access for package installation and the Kaggle dataset download
+
+### Dataset setup
+
+1. Open the [Kaggle dataset page](https://www.kaggle.com/datasets/mssmartypants/water-quality) and download the dataset. Sign in to Kaggle if prompted.
+2. Extract the archive.
+3. Place `waterQuality1.csv` inside the project's `data` folder:
+
+```text
+Smart_Water_Quality_ML/
+└── data/
+    └── waterQuality1.csv
+```
+
+4. The CSV is excluded by `.gitignore`; do not commit it to this repository.
 
 ### First-time setup
 
-1. Clone or download this repository and open the project folder in VS Code.
-2. Open the VS Code terminal in the project root.
-3. Run:
+Open the project folder in VS Code, open a terminal in the project root, and run:
 
 ```powershell
 .\setup_windows.bat
 ```
 
-The setup script creates `.venv`, installs packages from `requirements.txt`, downloads the dataset and runs `train.py` to generate the saved model and evaluation files.
+The setup script creates `.venv`, installs the packages listed in `requirements.txt`, checks that the Kaggle CSV is present, and runs the training pipeline to generate model and results files.
 
 ### Launch the dashboard
 
-Use either option:
+Use either method:
 
 ```powershell
 .\run_app.bat
 ```
 
-Or in VS Code, open **Run and Debug**, select **Run Smart Water Quality Dashboard**, and press **F5** (the `.vscode/launch.json` configuration uses the project's virtual environment).
+Or in VS Code, open **Run and Debug**, select **Run Smart Water Quality Dashboard**, and press **F5**.
 
 The dashboard normally opens at `http://localhost:8501`.
 
-### Run the training steps separately
-
-After setup, the equivalent commands are:
+### Run training separately
 
 ```powershell
 .\.venv\Scripts\python.exe download_data.py
 .\.venv\Scripts\python.exe train.py
-.\.venv\Scripts\python.exe -m streamlit run app.py
 ```
 
 ## Project structure
 
 ```text
-.
-├── .vscode/
-│   └── launch.json
-├── data/                         # downloaded CSV; not committed
+smart-water-quality-assessment-ml/
+├── .vscode/                 # VS Code launch configuration
+├── data/                    # Kaggle CSV (download separately; git-ignored)
 ├── docs/
-│   └── screenshots/              # dashboard screenshots used in this README
-├── models/                       # trained model bundle generated by train.py
-├── notebooks/
-│   └── 01_project_walkthrough.ipynb
-├── results/                      # metrics, reports, EDA outputs and confusion matrices
-├── app.py                        # Streamlit dashboard
-├── download_data.py               # dataset download helper
-├── train.py                       # preprocessing, EDA, training and evaluation
-├── setup_windows.bat              # first-time Windows setup
-├── run_app.bat                    # launch dashboard
+│   ├── screenshots/         # README dashboard screenshots
+│   └── DATA_AUDIT.md        # Dataset audit notes
+├── models/                  # Generated model bundle (git-ignored)
+├── notebooks/               # Project walkthrough notebook
+├── results/                 # Metrics, reports, EDA charts and confusion matrices
+├── app.py                   # Streamlit application
+├── download_data.py         # Checks local Kaggle CSV availability
+├── train.py                 # Preprocessing, training and evaluation
+├── setup_windows.bat        # Windows environment setup
+├── run_app.bat              # Launches Streamlit
 ├── requirements.txt
 ├── PROJECT_NOTES.md
 ├── LICENSE
 └── README.md
 ```
 
-## Limitations and possible future work
+## Limitations and future work
 
-- The benchmark dataset's provenance and labels do not establish compliance with any particular drinking-water regulation.
-- The dataset is not geographically representative of West Bengal or any other local area.
-- Results are based on one train/test split; repeated cross-validation and evaluation on independent, locally collected laboratory data would provide stronger evidence.
-- A practical system would require validated measurements, domain-expert review, model calibration and ongoing monitoring.
-- Future work could evaluate a separately sourced regional groundwater dataset, but datasets should only be combined after checking compatible units, measurement methods and feature definitions.
+- The target labels are those supplied by the Kaggle dataset; they have not been independently validated against laboratory records.
+- The CSV does not provide independently verifiable sample locations, collection dates or laboratory identifiers.
+- The class distribution is imbalanced, so accuracy alone can be misleading. Macro F1, balanced accuracy and class-specific recall are also reported.
+- Ten retained rows contain negative ammonia values; these are documented as potential data-quality anomalies and require domain review.
+- The reported results come from one stratified train/test split plus five-fold cross-validation on the training split. External validation on independently collected laboratory data is not included.
+- This project does not determine compliance with BIS or other drinking-water standards and is not a substitute for laboratory testing.
+
+Possible future work includes evaluation on verified regional groundwater datasets, calibration, repeated external validation, and review with water-quality specialists. Additional datasets should only be combined after checking units, measurement methods, and feature definitions.
 
 ## References and attribution
 
-- Dataset page: [Kaggle – Water Potability](https://www.kaggle.com/datasets/adityakadiwal/water-potability)
-- CSV mirror used by this project's downloader: [edanurb/Water-Quality-Dataset-pytorch](https://github.com/edanurb/Water-Quality-Dataset-pytorch)
-- Main libraries: [pandas](https://pandas.pydata.org/), [NumPy](https://numpy.org/), [scikit-learn](https://scikit-learn.org/), [Matplotlib](https://matplotlib.org/) and [Streamlit](https://streamlit.io/).
+- Dataset: [MsSmartyPants – Water Quality (Kaggle)](https://www.kaggle.com/datasets/mssmartypants/water-quality)
+- Python libraries: [Pandas](https://pandas.pydata.org/), [NumPy](https://numpy.org/), [scikit-learn](https://scikit-learn.org/), [Matplotlib](https://matplotlib.org/) and [Streamlit](https://streamlit.io/).
 
-The repository's MIT license applies to the project code. The dataset remains subject to the terms and attribution requirements of its source. External datasets, libraries and assistance should be acknowledged in any academic submission.
+The repository's license applies to the project code only. The dataset remains subject to its publisher's terms and attribution requirements. Acknowledge external datasets, libraries, and assistance in academic submissions.

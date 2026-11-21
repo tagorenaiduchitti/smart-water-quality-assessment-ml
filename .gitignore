@@ -1,4 +1,4 @@
-# Python cache
+# Python
 __pycache__/
 *.py[cod]
 *.log
@@ -8,13 +8,16 @@ __pycache__/
 venv/
 env/
 
-# Local datasets (downloaded using download_data.py)
+# Local dataset (download separately from Kaggle)
 data/*.csv
 
-# Environment variables and secrets
+# Generated model bundle can be recreated with train.py
+models/*.joblib
+
+# Secrets and local config
 .env
 .streamlit/secrets.toml
 
-# Operating system files
+# OS files
 .DS_Store
 Thumbs.db
