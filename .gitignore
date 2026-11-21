@@ -11,9 +11,6 @@ env/
 # Local dataset (download separately from Kaggle)
 data/*.csv
 
-# Generated model bundle can be recreated with train.py
-models/*.joblib
-
 # Secrets and local config
 .env
 .streamlit/secrets.toml
