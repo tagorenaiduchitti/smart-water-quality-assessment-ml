@@ -1,8 +1,4 @@
-"""Train and evaluate water-quality classifiers on the larger Kaggle dataset.
 
-Expected input: data/waterQuality1.csv (or another CSV with the same columns).
-The Kaggle dataset contains an 'is_safe' target and 20 numeric predictors.
-"""
 from __future__ import annotations
 
 import json
@@ -118,7 +114,7 @@ def load_and_validate() -> tuple[pd.DataFrame, dict]:
     }
     return df, metadata
 
-
+#Data Cleaning
 def save_eda(df: pd.DataFrame) -> None:
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -155,7 +151,7 @@ def save_eda(df: pd.DataFrame) -> None:
     df[FEATURES].describe().T.to_csv(RESULTS_DIR / "descriptive_statistics.csv")
     missing.rename("missing_count").to_csv(RESULTS_DIR / "missing_value_summary.csv")
 
-
+#MODELS USED
 def build_models() -> dict:
     return {
         "Logistic Regression": Pipeline([
