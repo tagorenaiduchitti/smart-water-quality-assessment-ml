@@ -180,7 +180,7 @@ smart-water-quality-assessment-ml/
 ├── docs/
 │   ├── screenshots/         # README dashboard screenshots
 │   └── DATA_AUDIT.md        # Dataset audit notes
-├── models/                  # Generated model bundle (git-ignored)
+├── models/                  # Trained model bundle used by the dashboard
 ├── notebooks/               # Project walkthrough notebook
 ├── results/                 # Metrics, reports, EDA charts and confusion matrices
 ├── app.py                   # Streamlit application
