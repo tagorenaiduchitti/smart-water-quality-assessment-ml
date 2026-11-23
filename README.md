@@ -10,10 +10,6 @@ An individual Machine Learning mini-project that explores water-quality measurem
 
 ![Dashboard overview](docs/screenshots/dashboard-overview.png)
 
-### Model comparison and confusion matrices
-
-![Model comparison and confusion matrices](docs/screenshots/model-results-and-confusion-matrices.png)
-
 ## Project objectives
 
 1. Explore 20 chemical and biological water-quality indicators.
